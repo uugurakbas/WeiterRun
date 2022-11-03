@@ -5,19 +5,22 @@ using UnityEngine;
 
 public class ChracterController : MonoBehaviour
 {
-
-    Rigidbody rb; 
-    public Transform plateTransform, hedef;
+ 
+    Rigidbody rb;
+    public Transform plateTransform;
     public GameObject plate,platerb;
     float x = 0f;
-    [HideInInspector] 
-    public GameObject Clone;
-    public int engelGuc = 10 , Score = 0, moveSpeed = 5, k=0;
-    
-    
+    [HideInInspector] public int Score = 0, k = 0, engelGuc;
+    [HideInInspector] public GameObject Clone;
+    public int moveSpeed = 8;
+
+
+
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        engelGuc = GameObject.FindWithTag("gucluengel").GetComponent<EngelGuc>().guc;
+
         
     }
 
@@ -51,7 +54,7 @@ public class ChracterController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.tag== "preis")
+        if(other.gameObject.tag== "preis") //ödül toplama
         {
             Destroy(other.gameObject);
             Score++;
@@ -63,25 +66,53 @@ public class ChracterController : MonoBehaviour
 
         }
 
+        if(other.gameObject.tag == "bonus")// zýplayarak bonus alana geçiþ
+        {
+            Destroy(other.gameObject);
+            rb.transform.position += transform.up * Time.deltaTime * 500f;
+        }
+
 
        
         
     }
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.tag == "alan")
+        if (other.gameObject.tag == "alan") //güçlü engellere nesne fýrlatma
         {
             StartCoroutine(wait());
             if (k == engelGuc) 
-            {
+            {     
                 Destroy(other.gameObject);
 
             }
             
-
-
-
         }
+        if (other.gameObject.tag == "alanBitis") // fýrlatýlan nesnelerin yok edilmesi
+        {
+            GameObject[] Clones = GameObject.FindGameObjectsWithTag("clone");
+            foreach (GameObject item in Clones)
+            {
+                Destroy(item);
+            }
+        }
+
+        if (other.gameObject.tag == "hizalan") // hýzlanma alaný 
+        {
+            moveSpeed = 20;
+        }
+
+
+    }
+
+    private void OnTriggerExit(Collider other) 
+    {
+        if(other.gameObject.tag == "hizalan") // hýzlanma alaný bitiþi
+        {
+            moveSpeed = 8; 
+        }
+
+
     }
     public IEnumerator wait()
     {
@@ -90,12 +121,12 @@ public class ChracterController : MonoBehaviour
         {
             if (Score > 0)
             {
-                Clone = Instantiate(platerb, plateTransform.position, Quaternion.identity);
-                Clone.GetComponent<Rigidbody>().AddForce(transform.forward * 2000f);
+                Clone = Instantiate(platerb, plateTransform.position, Quaternion.identity) as GameObject;
+                Clone.GetComponent<Rigidbody>().AddForce(transform.forward * 3000f);
                 k++;
                 Score--;
                 Debug.Log(Score);
-                yield return new WaitForSecondsRealtime(.5f);
+                yield return new WaitForSecondsRealtime(.7f);
                 
                 
 
@@ -108,6 +139,7 @@ public class ChracterController : MonoBehaviour
         if (k < engelGuc)
         {
             Debug.Log("Game Over");
+
         }
 
 
