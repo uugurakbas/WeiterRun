@@ -69,7 +69,8 @@ public class ChracterController : MonoBehaviour
         if(other.gameObject.tag == "bonus")// zýplayarak bonus alana geçiþ
         {
             Destroy(other.gameObject);
-            rb.transform.position += transform.up * Time.deltaTime * 500f;
+            rb.AddForce(new Vector3(0,80,0),ForceMode.Impulse);
+            
         }
 
 
