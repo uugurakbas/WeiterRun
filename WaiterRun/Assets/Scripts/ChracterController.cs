@@ -2,25 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ChracterController : MonoBehaviour
 {
- 
+
+    Animator anim,objAnim;
     Rigidbody rb;
     public Transform plateTransform;
-    public GameObject plate,platerb;
-    float x = 0f;
+    public GameObject platerb;
     [HideInInspector] public int Score = 0, k = 0, engelGuc;
     [HideInInspector] public GameObject Clone;
-    public int moveSpeed = 8;
+    public int moveSpeed = 10;
+    public bool yasiyor;
 
 
 
     void Awake()
     {
+        anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         engelGuc = GameObject.FindWithTag("gucluengel").GetComponent<EngelGuc>().guc;
-
+        yasiyor = true;
         
     }
 
@@ -31,11 +34,21 @@ public class ChracterController : MonoBehaviour
         if (Input.GetKey("left"))
         {
             transform.position += -transform.right * Time.deltaTime * moveSpeed;
+            anim.SetBool("SolKos", true);
+        }
+        else
+        {
+            anim.SetBool("SolKos", false);
         }
 
         if (Input.GetKey("right"))
         {
             transform.position += transform.right * Time.deltaTime * moveSpeed;
+            anim.SetBool("SagKos",true);
+        }
+        else
+        {
+            anim.SetBool("SagKos", false);
         }
 
 
@@ -43,10 +56,14 @@ public class ChracterController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.tag == "engel")
+        if(collision.gameObject.tag == "engel" || collision.gameObject.tag== "gucluengel")
         {
-            Debug.Log("game over");
+            anim.SetBool("Dusme", true);
+            moveSpeed = 0;
+            yasiyor=false;
+            
         }
+
         
         
     }
@@ -58,13 +75,7 @@ public class ChracterController : MonoBehaviour
         {
             Destroy(other.gameObject);
             Score++;
-            x = x + .01f;
-            Debug.Log(Score);
-            //Instantiate(plate,plateTransform);
-            
-            
-
-        }
+            Debug.Log(Score);        }
 
         if(other.gameObject.tag == "bonus")// zýplayarak bonus alana geçiþ
         {
@@ -73,22 +84,28 @@ public class ChracterController : MonoBehaviour
             
         }
 
+        if (other.gameObject.tag == "alan") //güçlü engellere nesne fýrlatma
+        {
 
-       
-        
+            StartCoroutine(wait());
+            if (k == engelGuc)
+            {
+                Destroy(other.gameObject);
+                anim.SetBool("Firlat", false);
+
+            }
+
+        }
+        if(other.gameObject.tag == "Finish")
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
+
+
     }
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.tag == "alan") //güçlü engellere nesne fýrlatma
-        {
-            StartCoroutine(wait());
-            if (k == engelGuc) 
-            {     
-                Destroy(other.gameObject);
 
-            }
-            
-        }
         if (other.gameObject.tag == "alanBitis") // fýrlatýlan nesnelerin yok edilmesi
         {
             GameObject[] Clones = GameObject.FindGameObjectsWithTag("clone");
@@ -98,9 +115,19 @@ public class ChracterController : MonoBehaviour
             }
         }
 
-        if (other.gameObject.tag == "hizalan") // hýzlanma alaný 
+        if (other.gameObject.tag == "hizalan" && yasiyor==true) // hýzlanma alaný 
         {
             moveSpeed = 20;
+        }
+        if (other.gameObject.tag == "alan") //güçlü engellere nesne fýrlatma
+        {
+            if (k == engelGuc || Score ==0 )
+            {
+                Destroy(other.gameObject);
+                anim.SetBool("Firlat", false);
+
+            }
+
         }
 
 
@@ -110,7 +137,7 @@ public class ChracterController : MonoBehaviour
     {
         if(other.gameObject.tag == "hizalan") // hýzlanma alaný bitiþi
         {
-            moveSpeed = 8; 
+            moveSpeed = 10; 
         }
 
 
@@ -120,28 +147,30 @@ public class ChracterController : MonoBehaviour
 
         for (int i = 0; i < engelGuc; i++)
         {
-            if (Score > 0)
+            if (Score>0 && k!=engelGuc)
             {
+                
+                yield return new WaitForSeconds(.1f);
+                anim.SetBool("Firlat", true);
                 Clone = Instantiate(platerb, plateTransform.position, Quaternion.identity) as GameObject;
-                Clone.GetComponent<Rigidbody>().AddForce(transform.forward * 3000f);
+                //Clone.GetComponent<Rigidbody>().AddForce(transform.forward * 3000f);
+                Clone.GetComponent<Rigidbody>().AddForce(new Vector3(0, 0, 100), ForceMode.Impulse);
                 k++;
                 Score--;
                 Debug.Log(Score);
-                yield return new WaitForSecondsRealtime(.7f);
-                
-                
+
+
+
+
+
 
             }
 
-
+            
 
 
         }
-        if (k < engelGuc)
-        {
-            Debug.Log("Game Over");
 
-        }
 
 
 
