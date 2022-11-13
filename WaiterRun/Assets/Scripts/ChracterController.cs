@@ -6,14 +6,15 @@ using UnityEngine.SceneManagement;
 
 public class ChracterController : MonoBehaviour
 {
-
+    public int moveSpeed = 10;
     Animator anim,objAnim;
     Rigidbody rb;
     public Transform plateTransform;
     public GameObject platerb;
     [HideInInspector] public int Score = 0, k = 0, engelGuc;
     [HideInInspector] public GameObject Clone;
-    public int moveSpeed = 10;
+    public float bounds = 3;
+ 
     public bool yasiyor;
 
 
@@ -29,6 +30,7 @@ public class ChracterController : MonoBehaviour
 
     private void Update()
     {
+        transform.position = new Vector3(Mathf.Clamp(transform.position.x, -bounds, bounds), transform.position.y, transform.position.z);
         transform.position += transform.forward *Time.deltaTime * moveSpeed;
 
         if (Input.GetKey("left"))
