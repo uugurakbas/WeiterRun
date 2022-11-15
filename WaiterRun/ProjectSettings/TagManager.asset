@@ -8,12 +8,9 @@ TagManager:
   - engel
   - alan
   - gucluengel
-  - rBound
-  - lBound
   - hizalan
   - bonus
   - clone
-  - alanBitis
   layers:
   - Default
   - TransparentFX

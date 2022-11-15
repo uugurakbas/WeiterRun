@@ -5,7 +5,7 @@ using UnityEngine;
 public class CameraMovement : MonoBehaviour
 {
     public float cameraSpeed;
-
+    
     private void Awake()
     {
         
@@ -16,5 +16,9 @@ public class CameraMovement : MonoBehaviour
         if (FindObjectOfType<ChracterController>().yasiyor)
             transform.position += Vector3.forward * cameraSpeed * Time.deltaTime ;
 
+        
+
     }
+
+    
 }

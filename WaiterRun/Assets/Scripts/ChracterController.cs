@@ -3,19 +3,21 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class ChracterController : MonoBehaviour
 {
     public int moveSpeed = 10;
-    Animator anim,objAnim;
-    Rigidbody rb;
-    public Transform plateTransform;
-    public GameObject platerb;
+    Animator anim;
+    public Collider collider;
+    Rigidbody rb,rot;
+    public Transform plateTransform, plateTransform2;
+    public GameObject platerb,birikenTabak;
     [HideInInspector] public int Score = 0, k = 0, engelGuc;
-    [HideInInspector] public GameObject Clone;
+    [HideInInspector] public GameObject Clone, birikenClone;
     public float bounds = 3;
- 
-    public bool yasiyor;
+    public bool yasiyor, esit;
+
 
 
 
@@ -24,6 +26,10 @@ public class ChracterController : MonoBehaviour
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
         engelGuc = GameObject.FindWithTag("gucluengel").GetComponent<EngelGuc>().guc;
+        esit = GameObject.FindWithTag("gucluengel").GetComponent<EngelGuc>().esit;
+        
+
+
         yasiyor = true;
         
     }
@@ -32,6 +38,7 @@ public class ChracterController : MonoBehaviour
     {
         transform.position = new Vector3(Mathf.Clamp(transform.position.x, -bounds, bounds), transform.position.y, transform.position.z);
         transform.position += transform.forward *Time.deltaTime * moveSpeed;
+
 
         if (Input.GetKey("left"))
         {
@@ -63,7 +70,12 @@ public class ChracterController : MonoBehaviour
             anim.SetBool("Dusme", true);
             moveSpeed = 0;
             yasiyor=false;
-            
+            collider.enabled = false;
+            rot = GameObject.Find("birikenTabak(Clone)").GetComponent<Rigidbody>();
+            rot.AddForce(new Vector3(0,0,2), ForceMode.Impulse); // çarptýðýmýz engellerin devrilmesi 
+
+
+
         }
 
         
@@ -77,7 +89,14 @@ public class ChracterController : MonoBehaviour
         {
             Destroy(other.gameObject);
             Score++;
-            Debug.Log(Score);        }
+            Debug.Log(Score);
+
+
+            birikenClone = Instantiate(birikenTabak,plateTransform2) as GameObject;
+            birikenClone.transform.position += transform.forward * Time.deltaTime * moveSpeed;
+
+
+        }
 
         if(other.gameObject.tag == "bonus")// zýplayarak bonus alana geçiþ
         {
@@ -90,12 +109,7 @@ public class ChracterController : MonoBehaviour
         {
 
             StartCoroutine(wait());
-            if (k == engelGuc)
-            {
-                Destroy(other.gameObject);
-                anim.SetBool("Firlat", false);
 
-            }
 
         }
         if(other.gameObject.tag == "Finish")
@@ -108,14 +122,6 @@ public class ChracterController : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
 
-        if (other.gameObject.tag == "alanBitis") // fýrlatýlan nesnelerin yok edilmesi
-        {
-            GameObject[] Clones = GameObject.FindGameObjectsWithTag("clone");
-            foreach (GameObject item in Clones)
-            {
-                Destroy(item);
-            }
-        }
 
         if (other.gameObject.tag == "hizalan" && yasiyor==true) // hýzlanma alaný 
         {
@@ -149,17 +155,20 @@ public class ChracterController : MonoBehaviour
 
         for (int i = 0; i < engelGuc; i++)
         {
-            if (Score>0 && k!=engelGuc)
+            if (Score>0 && !esit)
             {
                 
-                yield return new WaitForSeconds(.1f);
+
                 anim.SetBool("Firlat", true);
-                Clone = Instantiate(platerb, plateTransform.position, Quaternion.identity) as GameObject;
-                //Clone.GetComponent<Rigidbody>().AddForce(transform.forward * 3000f);
-                Clone.GetComponent<Rigidbody>().AddForce(new Vector3(0, 0, 100), ForceMode.Impulse);
-                k++;
+                yield return new WaitForSeconds(.324f);
+                Clone = Instantiate(platerb, plateTransform.position,Quaternion.Euler(0,90,0)) as GameObject;
+                Clone.GetComponent<Rigidbody>().AddForce(new Vector3(0, 0, 80), ForceMode.Impulse);
+                
                 Score--;
                 Debug.Log(Score);
+                Destroy(GameObject.Find("birikenTabak(Clone)"));
+                yield return new WaitForSeconds(.263f);
+
 
 
 
