@@ -13,10 +13,11 @@ public class ChracterController : MonoBehaviour
     Rigidbody rb,rot;
     public Transform plateTransform, plateTransform2;
     public GameObject platerb,birikenTabak;
-    [HideInInspector] public int Score = 0, k = 0, engelGuc;
+    [HideInInspector] public int Score = 0, k = 0, engelGuc, timesc;
     [HideInInspector] public GameObject Clone, birikenClone;
     public float bounds = 3;
-    public bool yasiyor, esit;
+    public bool yasiyor, esit, durma;
+    
 
 
 
@@ -28,14 +29,20 @@ public class ChracterController : MonoBehaviour
         engelGuc = GameObject.FindWithTag("gucluengel").GetComponent<EngelGuc>().guc;
         esit = GameObject.FindWithTag("gucluengel").GetComponent<EngelGuc>().esit;
         
+        
 
 
         yasiyor = true;
+        durma = false;
+        
         
     }
 
     private void Update()
     {
+        timesc = GameObject.Find("Canvas").GetComponent<GameManager>().timesc;
+        Time.timeScale = timesc;
+
         transform.position = new Vector3(Mathf.Clamp(transform.position.x, -bounds, bounds), transform.position.y, transform.position.z);
         transform.position += transform.forward *Time.deltaTime * moveSpeed;
 
@@ -60,7 +67,11 @@ public class ChracterController : MonoBehaviour
             anim.SetBool("SagKos", false);
         }
 
-
+         if(timesc == 0)
+        {
+            durma = true;
+        }
+        else { durma = false; }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -74,7 +85,7 @@ public class ChracterController : MonoBehaviour
             rot = GameObject.Find("birikenTabak(Clone)").GetComponent<Rigidbody>();
             rot.AddForce(new Vector3(0,0,2), ForceMode.Impulse); // çarptýðýmýz engellerin devrilmesi 
 
-
+            
 
         }
 
