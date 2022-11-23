@@ -7,7 +7,7 @@ public class MoveLeftRight : MonoBehaviour
     public float speed, distance;
     private float minX, maxX;
 
-    public bool right, dontMove;
+    public bool right;
     private bool stop;
 
     void Start()
@@ -18,8 +18,8 @@ public class MoveLeftRight : MonoBehaviour
 
     void Update()
     {
-        if (!stop && !dontMove)
-        {
+        
+        
             if (right)
             {
                 transform.position += Vector3.right * speed * Time.deltaTime;
@@ -32,14 +32,14 @@ public class MoveLeftRight : MonoBehaviour
                 if (transform.position.x <= minX)
                     right = true;
             }
-        }
-    }
+        
+   }
 
     void OnCollisionEnter(Collision target)
     {
         if ( target.gameObject.tag == "Player")
         {
-            stop = true;
+            
             GetComponent<Rigidbody>().freezeRotation = false;
         }
     }

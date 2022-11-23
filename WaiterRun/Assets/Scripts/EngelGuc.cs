@@ -24,7 +24,6 @@ public class EngelGuc : MonoBehaviour
         if (carpismaSayisi == guc)
         {
             Destroy(this.gameObject);
-            Destroy(GameObject.FindWithTag("alan"));
             esit = true;
             animator.SetBool("Firlat", false);
 
@@ -39,5 +38,15 @@ public class EngelGuc : MonoBehaviour
             Destroy(collision.gameObject);
         }
 
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if(carpismaSayisi == guc)
+        {
+            Destroy(other.gameObject);
+            esit=true;
+            animator.SetBool("Firlat", false);
+        }
     }
 }

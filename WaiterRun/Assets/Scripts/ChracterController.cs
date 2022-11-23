@@ -9,14 +9,13 @@ public class ChracterController : MonoBehaviour
 {
     public int moveSpeed = 10;
     Animator anim;
-    public Collider collider;
-    Rigidbody rb,rot;
+    Rigidbody rb;
     public Transform plateTransform, plateTransform2;
     public GameObject platerb,birikenTabak;
-    [HideInInspector] public int Score = 0, k = 0, engelGuc, timesc;
+    [HideInInspector] public int Score = 0,  engelGuc, timesc;
     [HideInInspector] public GameObject Clone, birikenClone;
     public float bounds = 3;
-    public bool yasiyor, esit, durma;
+    public bool yasiyor, esit, durma, bonus, bonusalanda;
     
 
 
@@ -26,20 +25,22 @@ public class ChracterController : MonoBehaviour
     {
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
-        engelGuc = GameObject.FindWithTag("gucluengel").GetComponent<EngelGuc>().guc;
+        
         esit = GameObject.FindWithTag("gucluengel").GetComponent<EngelGuc>().esit;
-        
-        
 
 
+
+        bonusalanda = false;
         yasiyor = true;
         durma = false;
+        bonus = false;
         
         
     }
 
     private void Update()
     {
+
         timesc = GameObject.Find("Canvas").GetComponent<GameManager>().timesc;
         Time.timeScale = timesc;
 
@@ -81,12 +82,8 @@ public class ChracterController : MonoBehaviour
             anim.SetBool("Dusme", true);
             moveSpeed = 0;
             yasiyor=false;
-            collider.enabled = false;
-            rot = GameObject.Find("birikenTabak(Clone)").GetComponent<Rigidbody>();
-            rot.AddForce(new Vector3(0,0,2), ForceMode.Impulse); // çarptýðýmýz engellerin devrilmesi 
-
-            
-
+            //collider.enabled = false;
+ 
         }
 
         
@@ -112,15 +109,20 @@ public class ChracterController : MonoBehaviour
         if(other.gameObject.tag == "bonus")// zýplayarak bonus alana geçiþ
         {
             Destroy(other.gameObject);
-            rb.AddForce(new Vector3(0,80,0),ForceMode.Impulse);
+            rb.AddForce(new Vector3(0,1200,0),ForceMode.Impulse);
+            StartCoroutine(Bonus());
             
+        }
+        else
+        {
+            bonus = false;
         }
 
         if (other.gameObject.tag == "alan") //güçlü engellere nesne fýrlatma
         {
-
+            engelGuc = other.gameObject.GetComponentInParent<EngelGuc>().guc;
             StartCoroutine(wait());
-
+            
 
         }
         if(other.gameObject.tag == "Finish")
@@ -132,21 +134,34 @@ public class ChracterController : MonoBehaviour
     }
     private void OnTriggerStay(Collider other)
     {
+        if(other.gameObject.tag == "bonusalan")
+        {
+            bonusalanda = true;
+            moveSpeed = 20;
 
+        }
+        else
+        {
+            bonusalanda = false;
+            moveSpeed = 10;
+        }
 
         if (other.gameObject.tag == "hizalan" && yasiyor==true) // hýzlanma alaný 
         {
             moveSpeed = 20;
         }
-        if (other.gameObject.tag == "alan") //güçlü engellere nesne fýrlatma
+
+        if (other.gameObject.tag == "alan" && Score!=0) //güçlü engellere nesne fýrlatma
         {
-            if (k == engelGuc || Score ==0 )
-            {
-                Destroy(other.gameObject);
-                anim.SetBool("Firlat", false);
+            anim.SetBool("Firlat", true);
+            
 
-            }
 
+
+        }
+        else if (other.gameObject.tag != "alan" || Score == 0)
+        {
+            anim.SetBool("Firlat", false);
         }
 
 
@@ -166,11 +181,11 @@ public class ChracterController : MonoBehaviour
 
         for (int i = 0; i < engelGuc; i++)
         {
-            if (Score>0 && !esit)
+            if (Score>0 )
             {
                 
 
-                anim.SetBool("Firlat", true);
+                
                 yield return new WaitForSeconds(.324f);
                 Clone = Instantiate(platerb, plateTransform.position,Quaternion.Euler(0,90,0)) as GameObject;
                 Clone.GetComponent<Rigidbody>().AddForce(new Vector3(0, 0, 80), ForceMode.Impulse);
@@ -197,6 +212,12 @@ public class ChracterController : MonoBehaviour
 
 
 
+    }
+    public IEnumerator Bonus()
+    {
+        bonus = true;
+        yield return new WaitForSeconds(2);
+        bonus = false;
     }
 
 
